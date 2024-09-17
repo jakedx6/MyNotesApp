@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
+
 <head>
   <meta charset="UTF-8">
   <title>Markdown Notes App</title>
@@ -12,20 +13,46 @@
       theme: {
         extend: {},
       },
+      plugins: [
+        function ({ addBase, theme }) {
+          function extractColorVars(colorObj, colorGroup = '') {
+            return Object.keys(colorObj).reduce((vars, colorKey) => {
+              const value = colorObj[colorKey];
+
+              const newVars =
+                typeof value === 'string'
+                  ? { [`--color${colorGroup}-${colorKey}`]: value }
+                  : extractColorVars(value, `-${colorKey}`);
+
+              return { ...vars, ...newVars };
+            }, {});
+          }
+
+          addBase({
+            ':root': extractColorVars(theme('colors')),
+          });
+        },
+      ],
     }
   </script>
   <link rel="manifest" href="manifest.json">
+  <!-- Include EasyMDE CSS -->
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
 </head>
+
 <body class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100">
   <div id="app" class="flex flex-col h-screen">
     <header class="bg-gray-100 dark:bg-gray-800 p-4 flex items-center justify-between">
       <h1 class="text-xl font-bold">Markdown Notes</h1>
       <div class="flex items-center space-x-2">
-        <button onclick="requestDirectoryAccess()" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Open Directory</button>
-        <button onclick="promptCreateNote()" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">New Note</button>
-        <button onclick="promptCreateFolder()" class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600">New Folder</button>
-        <!-- Dark Mode Toggle -->
-        <button onclick="toggleDarkMode()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Toggle Dark Mode</button>
+        <button id="new-note-btn" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">New Note</button>
+        <button id="new-folder-btn" class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600">New
+          Folder</button>
+        <button id="change-directory-btn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Change
+          Directory</button>
+        <button onclick="toggleDarkMode()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Toggle
+          Dark Mode</button>
       </div>
     </header>
     <div class="flex flex-1 overflow-hidden">
@@ -33,30 +60,45 @@
         <!-- Folder tree will be rendered here -->
       </nav>
       <main class="flex flex-1 flex-col overflow-hidden">
-        <!-- Tabs -->
-        <div class="border-b border-gray-200 dark:border-gray-700">
-          <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-            <button onclick="showTab('editor')" id="tab-editor" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-blue-600 border-blue-500">Editor</button>
-            <button onclick="showTab('preview')" id="tab-preview" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100">Preview</button>
-          </nav>
-        </div>
-        <!-- Tab Content -->
-        <div id="editor-tab" class="flex-1 flex flex-col overflow-hidden">
-          <textarea id="editor" class="flex-1 p-4 resize-none font-mono text-base bg-white dark:bg-gray-800 focus:outline-none overflow-y-auto" placeholder="Start typing your markdown note here..."></textarea>
-          <div id="actions" class="p-4">
-            <button onclick="processSelection('rewrite')" class="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600">Rewrite</button>
-            <button onclick="processSelection('expand')" class="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600">Expand</button>
-            <button onclick="processSelection('summarize')" class="px-4 py-2 bg-teal-500 text-white rounded hover:bg-teal-600">Summarize</button>
+        <!-- Prompt Container -->
+        <div id="prompt-container" class="flex-1 flex items-center justify-center">
+          <div class="text-center">
+            <p class="mb-4">Please select a directory to continue.</p>
+            <button onclick="requestDirectoryAccess()"
+              class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Open Directory</button>
           </div>
         </div>
-        <div id="preview-tab" class="flex-1 p-4 overflow-y-auto hidden bg-white dark:bg-gray-800">
-          <!-- Markdown preview will be rendered here -->
+        <!-- Editor -->
+        <div id="editor-container" class="flex-1 overflow-auto" style="display: none;">
+          <textarea id="editor"></textarea>
+        </div>
+        <!-- Placeholder Message -->
+        <div id="placeholder-container" class="flex-1 flex items-center justify-center">
+          <div class="text-center text-gray-500">
+            <p>Select a markdown file to start editing.</p>
+          </div>
         </div>
       </main>
     </div>
   </div>
-  <!-- Include Marked.js for Markdown rendering -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- AI Response Modal -->
+  <div id="ai-response-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <span id="close-modal" class="close-button">&times;</span>
+      <h2>AI Response</h2>
+      <textarea id="ai-response-text" readonly></textarea>
+      <div class="modal-actions">
+        <button id="append-button" class="modal-button">Append</button>
+        <button id="replace-button" class="modal-button">Replace</button>
+      </div>
+    </div>
+  </div>
+  <!-- Include idb library for IndexedDB (version 6) -->
+  <script src="https://unpkg.com/idb@6.1.5/build/iife/index-min.js"></script>
+  <!-- Include EasyMDE JS -->
+  <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+  <!-- Your app.js script -->
   <script src="app.js"></script>
 </body>
+
 </html>
