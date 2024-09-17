@@ -73,7 +73,7 @@
           <textarea id="editor"></textarea>
         </div>
         <!-- Placeholder Message -->
-        <div id="placeholder-container" class="flex-1 flex items-center justify-center">
+        <div id="placeholder-container" class="flex-1 flex items-center justify-center" style="display: none;">
           <div class="text-center text-gray-500">
             <p>Select a markdown file to start editing.</p>
           </div>
@@ -81,13 +81,14 @@
       </main>
     </div>
   </div>
-    <!-- AI Response Modal -->
+  <!-- AI Response Modal -->
   <div id="ai-response-modal" class="modal" style="display: none;">
     <div class="modal-content">
       <span id="close-modal" class="close-button">&times;</span>
       <h2>AI Response</h2>
       <textarea id="ai-response-text" readonly></textarea>
       <div class="modal-actions">
+        <button id="copy-button" class="modal-button">Copy</button>
         <button id="append-button" class="modal-button">Append</button>
         <button id="replace-button" class="modal-button">Replace</button>
       </div>

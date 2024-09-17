@@ -250,3 +250,21 @@ html.dark .editor-toolbar {
     filter: brightness(0.8);
   }
   
+  /* Adjust selection colors in CodeMirror editor for dark mode */
+html.dark .CodeMirror .CodeMirror-selected {
+    background-color: var(--color-slate-950) !important;
+  }
+  
+  html.dark .CodeMirror .CodeMirror-line::selection,
+  html.dark .CodeMirror .CodeMirror-line > span::selection,
+  html.dark .CodeMirror .CodeMirror-line > span > span::selection {
+    background: var(--color-slate-950) !important;
+    color: var(--color-slate-300) !important;
+  }
+  
+  html.dark .CodeMirror .CodeMirror-line::-moz-selection,
+  html.dark .CodeMirror .CodeMirror-line > span::-moz-selection,
+  html.dark .CodeMirror .CodeMirror-line > span > span::-moz-selection {
+    background: var(--color-slate-950) !important;
+    color: var(--color-slate-300) !important;
+  }

@@ -171,6 +171,7 @@ main {
   html.dark .modal-content textarea {
     background-color: var(--color-gray-900);
     color: var(--color-slate-200);
+    padding:1rem;
   }
   
   html.dark .modal-button {
@@ -180,6 +181,17 @@ main {
   
   html.dark .modal-button:hover {
     background-color: var(--color-gray-600);
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px; /* Add gap between buttons */
+  }
+
+  html.dark ::selection {
+    color: var(--color-slate-300);
+    background: var(--color-slate-950);
   }
 
 @media (max-width: 600px) {

@@ -550,6 +550,7 @@ if ('serviceWorker' in navigator) {
 function showAIResponseModal(aiResponse, doc) {
   const modal = document.getElementById('ai-response-modal');
   const closeModalButton = document.getElementById('close-modal');
+  const copyButton = document.getElementById('copy-button');
   const appendButton = document.getElementById('append-button');
   const replaceButton = document.getElementById('replace-button');
   const aiResponseText = document.getElementById('ai-response-text');
@@ -565,8 +566,28 @@ function showAIResponseModal(aiResponse, doc) {
     modal.style.display = 'none';
     // Remove event listeners to prevent duplicates
     closeModalButton.removeEventListener('click', closeModal);
+    copyButton.removeEventListener('click', handleCopy);
     appendButton.removeEventListener('click', handleAppend);
     replaceButton.removeEventListener('click', handleReplace);
+  }
+
+  // Copy action using Clipboard API
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(aiResponseText.value);
+      // Display a temporary message
+      const copyMessage = document.createElement('span');
+      copyMessage.textContent = 'Copied to clipboard!';
+      copyMessage.style.color = 'green';
+      copyButton.parentElement.insertBefore(copyMessage, copyButton.nextSibling);
+
+      setTimeout(() => {
+        copyMessage.remove();
+      }, 2000);
+    } catch (err) {
+      console.error('Error copying text: ', err);
+      alert('Error copying text to clipboard.');
+    }
   }
 
   // Append action
@@ -584,6 +605,7 @@ function showAIResponseModal(aiResponse, doc) {
 
   // Event listeners
   closeModalButton.addEventListener('click', closeModal);
+  copyButton.addEventListener('click', handleCopy);
   appendButton.addEventListener('click', handleAppend);
   replaceButton.addEventListener('click', handleReplace);
 
@@ -594,6 +616,7 @@ function showAIResponseModal(aiResponse, doc) {
     }
   }, { once: true });
 }
+
 
 // Attempt to load the stored directory handle on app load
 window.addEventListener('DOMContentLoaded', async () => {
@@ -643,13 +666,13 @@ async function handleOllamaAction(action, editor) {
   let prompt = '';
   switch (action) {
     case 'expand':
-      prompt = `Expand the following text:\n\n"${selectedText}"\n\nReturn only the expanded content without any additional explanation.`;
+      prompt = `Expand the following text:\n\n"${selectedText}"\n\nReturn only the expanded content without any additional explanation in markdown format`;
       break;
     case 'improve':
-      prompt = `Improve the following text:\n\n"${selectedText}"\n\nReturn only the improved content without any additional explanation.`;
+      prompt = `Improve the following text:\n\n"${selectedText}"\n\nReturn only the improved content without any additional explanation in markdown format`;
       break;
     case 'summarize':
-      prompt = `Summarize the following text:\n\n"${selectedText}"\n\nReturn only the summary without any additional explanation.`;
+      prompt = `Summarize the following text:\n\n"${selectedText}"\n\nReturn only the summary without any additional explanation in markdown format.`;
       break;
     default:
       console.error('Unknown action:', action);
