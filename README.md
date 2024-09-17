@@ -1,7 +1,7 @@
 
-# **Markdown Editor with AI Assistance**
+# **Markdown Notes Editor with AI Assistance**
 
-A feature-rich Markdown editor with directory navigation, dark mode support, and integrated AI functionalities powered by the [Ollama](https://github.com/jmorganca/ollama) API. Enhance your writing experience with AI-powered text expansion, improvement, and summarization directly within the editor.
+A feature-rich Markdown Notes editor with directory navigation, dark mode support, and integrated AI functionalities powered by the [Ollama](https://github.com/jmorganca/ollama) API. Enhance your writing experience with AI-powered text expansion, improvement, and summarization directly within the editor.
 
 ## **Table of Contents**
 
