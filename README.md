@@ -141,7 +141,7 @@ bash
 
 Copy code
 
-`ollama pull llama2` 
+`ollama pull llama3.1` 
 
 ### **4. Update Model Name in Application**
 
@@ -154,7 +154,7 @@ javascript
 Copy code
 
 `body: JSON.stringify({
-  model: 'llama2', // Replace with your actual model name
+  model: 'llama3.1', // Replace with your actual model name
   prompt: prompt,
 }),` 
 
@@ -200,7 +200,7 @@ Copy code
 
 -   If you encounter CORS errors, consider adjusting the Ollama server's CORS settings or using a proxy.
 
-### **4. Editor Not Updating**
+### **4. Editor Note Updating**
 
 -   Ensure that event listeners are correctly attached.
 -   Verify that the editor's initialization logic is functioning.
