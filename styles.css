@@ -162,6 +162,7 @@ main {
     cursor: pointer;
   }
   
+  
   /* Dark mode styles */
   html.dark .modal-content {
     background-color: var(--color-gray-800);

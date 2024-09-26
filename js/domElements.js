@@ -2,6 +2,7 @@
 
 import { updateCurrentDirectoryHandle, deleteFile, openFile } from './fileSystem.js';
 import { loadAndRenderDirectoryContents } from './directoryTree.js';
+import { getSetting } from './db.js';
 
 /*** DOM Element Creation Functions ***/
 
@@ -197,4 +198,17 @@ export function showAIResponseModal(aiResponse, doc) {
     },
     { once: true }
   );
+}
+
+
+// Settings Modal Functions
+export async function openSettingsModal() {
+  document.getElementById('settings-modal').style.display = 'block';
+  const currentUrl = await getSetting('ollamaUrl');
+  document.getElementById('ollama-url-input').value = currentUrl || 'http://localhost:11434';
+}
+
+
+export function closeSettingsModal() {
+  document.getElementById('settings-modal').style.display = 'none';
 }

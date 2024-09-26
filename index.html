@@ -51,7 +51,9 @@
           Folder</button>
         <button id="change-directory-btn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Change
           Directory</button>
-        <button id="toggle-dark-mode-btn" onclick="toggleDarkMode()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Toggle
+        <button id="open-settings-btn">Settings</button>
+        <button id="toggle-dark-mode-btn" onclick="toggleDarkMode()"
+          class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Toggle
           Dark Mode</button>
       </div>
     </header>
@@ -64,7 +66,8 @@
         <div id="prompt-container" class="flex-1 flex items-center justify-center">
           <div class="text-center">
             <p class="mb-4">Please select a directory to continue.</p>
-            <button id="open-directory-btn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Open Directory</button>
+            <button id="open-directory-btn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Open
+              Directory</button>
           </div>
         </div>
         <!-- Editor -->
@@ -93,6 +96,19 @@
       </div>
     </div>
   </div>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="modal">
+    <div class="modal-content">
+      <span id="close-settings-modal" class="close">&times;</span>
+      <h2>Settings</h2>
+      <label for="ollama-url-input">Ollama Instance URL:</label>
+      <input type="text" id="ollama-url-input" value="http://localhost:11434">
+      <button id="save-settings-btn">Save</button>
+    </div>
+  </div>
+
+
   <!-- Include idb library for IndexedDB (version 6) -->
   <script src="https://unpkg.com/idb@6.1.5/build/iife/index-min.js"></script>
   <!-- Include EasyMDE JS -->

@@ -1,6 +1,20 @@
 // ai.js
 
 import { showAIResponseModal } from './domElements.js';
+import { saveSetting, getSetting } from './db.js';
+
+// Initialize Ollama URL
+let ollamaUrl;
+
+async function initializeOllamaUrl() {
+  ollamaUrl = await getSetting('ollamaUrl');
+  if (!ollamaUrl) {
+    ollamaUrl = 'http://localhost:11434';
+    await saveSetting('ollamaUrl', ollamaUrl);
+  }
+}
+
+initializeOllamaUrl();
 
 export async function handleOllamaAction(action, editor) {
   const doc = editor.codemirror.getDoc();
@@ -29,7 +43,7 @@ export async function handleOllamaAction(action, editor) {
   }
 
   try {
-    const response = await fetch('/api/generate', {
+    const response = await fetch(ollamaUrl + '/api/generate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
