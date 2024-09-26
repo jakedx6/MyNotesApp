@@ -51,7 +51,7 @@
           Folder</button>
         <button id="change-directory-btn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Change
           Directory</button>
-        <button onclick="toggleDarkMode()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Toggle
+        <button id="toggle-dark-mode-btn" onclick="toggleDarkMode()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Toggle
           Dark Mode</button>
       </div>
     </header>
@@ -64,8 +64,7 @@
         <div id="prompt-container" class="flex-1 flex items-center justify-center">
           <div class="text-center">
             <p class="mb-4">Please select a directory to continue.</p>
-            <button onclick="requestDirectoryAccess()"
-              class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Open Directory</button>
+            <button id="open-directory-btn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Open Directory</button>
           </div>
         </div>
         <!-- Editor -->
@@ -99,7 +98,7 @@
   <!-- Include EasyMDE JS -->
   <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
   <!-- Your app.js script -->
-  <script src="app.js"></script>
+  <script type="module" src="main.js"></script>
 </body>
 
 </html>
