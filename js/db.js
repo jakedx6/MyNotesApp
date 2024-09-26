@@ -4,11 +4,16 @@
 import { openDB } from 'https://unpkg.com/idb?module';
 
 // Set up IndexedDB
-export const dbPromise = openDB('markdown-notes-db', 1, {
-  upgrade(db) {
-    db.createObjectStore('handles', {
-      keyPath: 'id',
-    });
+export const dbPromise = openDB('markdown-notes-db', 2, {
+  upgrade(db, oldVersion) {
+    if (oldVersion < 1) {
+      // Version 1 setup
+      db.createObjectStore('handles', { keyPath: 'id' });
+    }
+    if (oldVersion < 2) {
+      // Version 2 setup: Create a new object store for settings
+      db.createObjectStore('settings', { keyPath: 'key' });
+    }
   },
 });
 
@@ -28,4 +33,17 @@ export async function getStoredDirectoryHandles() {
     rootHandle: rootHandleEntry ? rootHandleEntry.handle : null,
     currentHandle: currentHandleEntry ? currentHandleEntry.handle : null,
   };
+}
+
+// Save a setting to IndexedDB
+export async function saveSetting(key, value) {
+  const db = await dbPromise;
+  await db.put('settings', { key, value });
+}
+
+// Retrieve a setting from IndexedDB
+export async function getSetting(key) {
+  const db = await dbPromise;
+  const result = await db.get('settings', key);
+  return result ? result.value : null;
 }

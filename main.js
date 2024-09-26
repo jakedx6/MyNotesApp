@@ -1,6 +1,6 @@
 // main.js
 
-import { getStoredDirectoryHandles } from './js/fileSystem.js';
+import { getStoredDirectoryHandles } from './js/db.js';
 import { renderDirectoryTree } from './js/directoryTree.js';
 import { initializeEventListeners } from './js/eventListeners.js';
 import { toggleEditorDisplay, showElement } from './js/utils.js';

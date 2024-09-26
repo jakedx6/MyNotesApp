@@ -1,7 +1,7 @@
 // fileSystem.js
 
 import { verifyPermission } from './permissions.js';
-import { storeDirectoryHandles, dbPromise } from './db.js';
+import { storeDirectoryHandles, dbPromise, getStoredDirectoryHandles } from './db.js';
 import { sortEntries, toggleEditorDisplay, highlightSelectedFile } from './utils.js';
 import { createFileElement, createDirectoryElement } from './domElements.js';
 import { initializeEditor } from './editor.js';
@@ -190,17 +190,6 @@ export function promptCreateFolder() {
   if (folderName) {
     createFolder(folderName);
   }
-}
-
-// Retrieve the stored directory handles
-export async function getStoredDirectoryHandles() {
-  const db = await dbPromise;
-  const rootHandleEntry = await db.get('handles', 'root');
-  const currentHandleEntry = await db.get('handles', 'current');
-  return {
-    rootHandle: rootHandleEntry ? rootHandleEntry.handle : null,
-    currentHandle: currentHandleEntry ? currentHandleEntry.handle : null,
-  };
 }
 
 // Prompt to create a new note
