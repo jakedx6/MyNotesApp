@@ -30,21 +30,21 @@ export function initializeEditor(content = '') {
             toolbar: [
                 'bold', 'italic', 'heading', '|',
                 'quote', 'code', 'table', 'horizontal-rule', '|',
-                'link', 'image', '|',
+                'link', 'image','|', 'preview', 'side-by-side', 'fullscreen', '|',
                 {
                     name: 'expand',
                     action: async function customExpand(editor) {
                         await handleOllamaAction('expand', editor);
                     },
-                    className: 'fa fa-expand',
-                    title: 'Expand Selection',
+                    className: 'fa fa-expand bg-orange-400',
+                    title: 'Expand Selection'
                 },
                 {
                     name: 'improve',
                     action: async function customImprove(editor) {
                         await handleOllamaAction('improve', editor);
                     },
-                    className: 'fa fa-magic',
+                    className: 'fa fa-magic bg-orange-400',
                     title: 'Improve Selection',
                 },
                 {
@@ -52,10 +52,9 @@ export function initializeEditor(content = '') {
                     action: async function customSummarize(editor) {
                         await handleOllamaAction('summarize', editor);
                     },
-                    className: 'fa fa-align-left',
+                    className: 'fa fa-align-left bg-orange-400',
                     title: 'Summarize Selection',
                 },
-                '|', 'preview', 'side-by-side', 'fullscreen',
             ],
             autosave: {
                 enabled: false,
