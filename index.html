@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Markdown Notes App</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100" rel="stylesheet" />
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Enable dark mode in Tailwind config -->
@@ -49,21 +50,16 @@
         <button id="new-note-btn" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">New Note</button>
         <button id="new-folder-btn" class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600">New
           Folder</button>
-        <button id="change-directory-btn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Change
-          Directory</button>
         <button id="open-settings-btn">Settings</button>
-        <button id="toggle-dark-mode-btn" onclick="toggleDarkMode()"
-          class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Toggle
-          Dark Mode</button>
       </div>
     </header>
     <div class="flex flex-1 overflow-hidden">
-      <nav id="folder-list" class="w-64 border-r border-gray-200 dark:border-gray-700 overflow-y-auto">
+      <nav id="folder-list" class="w-64 border-r border-gray-200 dark:border-gray-700 overflow-y auto p-3">
         <!-- Folder tree will be rendered here -->
       </nav>
       <main class="flex flex-1 flex-col overflow-hidden">
         <!-- Prompt Container -->
-        <div id="prompt-container" class="flex-1 flex items-center justify-center">
+        <div id="prompt-container" class="flex-1 flex items-center justify-center content-center">
           <div class="text-center">
             <p class="mb-4">Please select a directory to continue.</p>
             <button id="open-directory-btn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Open
@@ -83,6 +79,7 @@
       </main>
     </div>
   </div>
+
   <!-- AI Response Modal -->
   <div id="ai-response-modal" class="modal" style="display: none;">
     <div class="modal-content">
@@ -97,24 +94,54 @@
     </div>
   </div>
 
+
   <!-- Settings Modal -->
-  <div id="settings-modal" class="modal">
-    <div class="modal-content">
-      <span id="close-settings-modal" class="close">&times;</span>
-      <h2>Settings</h2>
-      <label for="ollama-url-input">Ollama Instance URL:</label>
-      <input type="text" id="ollama-url-input" value="http://localhost:11434">
-      <button id="save-settings-btn">Save</button>
+  <div id="settings-modal"
+    class="fixed inset-0 z-50 flex items-center justify-center content-center h-screen bg-black bg-opacity-50"
+    style="display: none;">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-11/12 max-w-md mx-auto">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Settings</h2>
+        <button id="close-settings-modal"
+          class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 focus:outline-none cursor-pointer">&times;</button>
+      </div>
+      <!-- Modal Content -->
+      <div class="px-4 py-6">
+        <div class="mb-4">
+          <label for="ollama-url-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Ollama
+            Instance URL:</label>
+          <input type="text" id="ollama-url-input" value="http://localhost:11434"
+            class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-blue-500 focus:outline-none">
+        </div>
+        <div class="flex mb-3">
+          <button id="toggle-dark-mode-btn"
+            class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600">
+            Toggle Dark Mode
+          </button>
+        </div>
+        <div class="flex mb-3">
+          <button id="change-directory-btn"
+            class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600">
+            Change Directory
+          </button>
+        </div>
+      </div>
+      <!-- Modal Footer -->
+      <div class="flex flex-row-reverse content-center px-4 py-2 border-t border-gray-200 dark:border-gray-700">
+        <button id="save-settings-btn"
+          class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 dark:bg-green-700 dark:hover:bg-green-600">
+          Save
+        </button>
+      </div>
     </div>
-  </div>
 
-
-  <!-- Include idb library for IndexedDB (version 6) -->
-  <script src="https://unpkg.com/idb@6.1.5/build/iife/index-min.js"></script>
-  <!-- Include EasyMDE JS -->
-  <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
-  <!-- Your app.js script -->
-  <script type="module" src="main.js"></script>
+    <!-- Include idb library for IndexedDB (version 6) -->
+    <script src="https://unpkg.com/idb@6.1.5/build/iife/index-min.js"></script>
+    <!-- Include EasyMDE JS -->
+    <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+    <!-- Your app.js script -->
+    <script type="module" src="main.js"></script>
 </body>
 
 </html>

@@ -9,19 +9,16 @@ import { getSetting } from './db.js';
 // Create directory element recursively
 export async function createDirectoryElement(directoryHandle, parentDirectoryHandle, level) {
   const item = document.createElement('div');
-  item.classList.add('flex', 'flex-col');
+  item.classList.add('flex', 'flex-col', 'p-0');
 
   const folderHeader = document.createElement('div');
-  folderHeader.classList.add('flex', 'items-center', 'cursor-pointer', 'hover:bg-gray-200', 'dark:hover:bg-gray-700', 'p-2');
-  folderHeader.style.paddingLeft = `${level * 1.5}rem`;
+  folderHeader.classList.add('flex', 'items-center', 'cursor-pointer', 'hover:bg-gray-200', 'dark:hover:bg-gray-700');
+  folderHeader.style.paddingLeft = `${level * .75}rem`;
 
   // Folder icon (closed)
   const folderIcon = document.createElement('span');
   folderIcon.innerHTML = `
-    <svg class="w-5 h-5 mr-2 inline-block" fill="currentColor" viewBox="0 0 20 20">
-      <path d="M2 6a2 2 0 012-2h4l2 2h6a2 2 0 012 2v1H2V6z" />
-      <path d="M2 9h16v5a2 2 0 01-2 2H4a2 2 0 01-2-2V9z" />
-    </svg>
+<span class="material-symbols-outlined">folder</span>
   `;
 
   const folderName = document.createElement('span');
@@ -34,7 +31,7 @@ export async function createDirectoryElement(directoryHandle, parentDirectoryHan
   item.appendChild(folderHeader);
 
   const childrenContainer = document.createElement('div');
-  childrenContainer.classList.add('flex', 'flex-col');
+  childrenContainer.classList.add('flex', 'flex-col', 'p-0');
   childrenContainer.style.display = 'none'; // Initially collapsed
 
   folderHeader.onclick = async (event) => {
@@ -44,12 +41,9 @@ export async function createDirectoryElement(directoryHandle, parentDirectoryHan
       childrenContainer.style.display = 'flex';
       // Change folder icon to open
       folderIcon.innerHTML = `
-        <svg class="w-5 h-5 mr-2 inline-block" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M2 6a2 2 0 012-2h4l2 2h8a2 2 0 012 2v1H2V6z" />
-          <path d="M2 9h16v5a2 2 0 01-2 2H4a2 2 0 01-2-2V9z" />
-        </svg>
+<span class="material-symbols-outlined">folder_open</span>
       `;
-       if (!childrenContainer.hasChildNodes()) {
+      if (!childrenContainer.hasChildNodes()) {
         // Load and render child entries
         await loadAndRenderDirectoryContents(directoryHandle, childrenContainer, level + 1);
       }
@@ -57,10 +51,7 @@ export async function createDirectoryElement(directoryHandle, parentDirectoryHan
       childrenContainer.style.display = 'none';
       // Change folder icon to closed
       folderIcon.innerHTML = `
-        <svg class="w-5 h-5 mr-2 inline-block" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M2 6a2 2 0 012-2h4l2 2h6a2 2 0 012 2v1H2V6z" />
-          <path d="M2 9h16v5a2 2 0 01-2 2H4a2 2 0 01-2-2V9z" />
-        </svg>
+<span class="material-symbols-outlined">folder</span>
       `;
     }
   };
@@ -73,18 +64,16 @@ export async function createDirectoryElement(directoryHandle, parentDirectoryHan
 // Create file element
 export async function createFileElement(fileHandle, parentDirectoryHandle, level) {
   const item = document.createElement('div');
-  item.classList.add('flex', 'items-center', 'justify-between', 'hover:bg-gray-200', 'dark:hover:bg-gray-700', 'p-2', 'file-item');
-  item.style.paddingLeft = `${level * 1.5}rem`;
+  item.classList.add('flex', 'items-center', 'justify-between', 'hover:bg-gray-200', 'dark:hover:bg-gray-700', 'file-item');
+  item.style.paddingLeft = `${level * .75}rem`;
 
   const fileInfo = document.createElement('div');
   fileInfo.classList.add('flex', 'items-center', 'cursor-pointer');
 
   // File icon
   const fileIcon = document.createElement('span');
-  fileIcon.innerHTML =`
-    <svg class="w-5 h-5 mr-2 inline-block" fill="currentColor" viewBox="0 0 20 20">
-      <path d="M4 2h8l4 4v12a2 2 0 01-2 2H4a2 2 0 01-2-2V4a2 2 0 012-2z" />
-    </svg>
+  fileIcon.innerHTML = `
+<span class="material-symbols-outlined">description</span>
   `;
 
   const fileName = document.createElement('span');
@@ -99,10 +88,7 @@ export async function createFileElement(fileHandle, parentDirectoryHandle, level
   // Delete button
   const deleteButton = document.createElement('button');
   deleteButton.innerHTML = `
-    <svg class="w-5 h-5 text-red-600 hover:text-red-800" fill="currentColor" viewBox="0 0 20 20">
-      <path d="M6 6h8v10H6V6z" />
-      <path fill-rule="evenodd" d="M4 4h12v2H4V4zm3 2h6v10H7V6z" clip-rule="evenodd" />
-    </svg>
+<span class="material-symbols-outlined text-red-500">delete</span>
   `;
   deleteButton.classList.add('focus:outline-none');
 
