@@ -17,12 +17,15 @@ window.addEventListener('DOMContentLoaded', async () => {
   initializeEventListeners(); // Initialize event listeners
 
   const handles = await getStoredDirectoryHandles();
-  if (handles.rootHandle) {
-    const permission = await verifyPermission(handles.rootHandle);
+  rootDirectoryHandle = handles.rootHandle;
+  currentDirectoryHandle = handles.currentHandle || rootDirectoryHandle;
+
+  if (rootDirectoryHandle) {
+    const permission = await verifyPermission(rootDirectoryHandle);
     if (permission) {
-      await renderDirectoryTree(handles.currentHandle || handles.rootHandle);
-      toggleEditorDisplay(false);
+      await renderDirectoryTree(rootDirectoryHandle);
     } else {
+      // Permission not granted, request it again
       showOpenDirectoryPrompt();
     }
   } else {
@@ -31,7 +34,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   // Register the service worker
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js')
+    navigator.serviceWorker.register('service-worker.js', { scope: '/' })
       .then((reg) => console.log('Service Worker registered', reg))
       .catch((err) => console.error('Service Worker registration failed', err));
   }

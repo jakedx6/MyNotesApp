@@ -32,7 +32,7 @@ export async function renderDirectoryTree(directoryHandle = rootDirectoryHandle)
 }
 
 // Load and render directory contents recursively
-export async function loadAndRenderDirectoryContents(directoryHandle, container, level) {
+export async function loadAndRenderDirectoryContents(directoryHandle, container, level, parentDirectoryHandle) {
   // Collect entries
   const entries = [];
   for await (const entry of directoryHandle.values()) {
@@ -48,7 +48,7 @@ export async function loadAndRenderDirectoryContents(directoryHandle, container,
     if (entry.kind === 'file') {
       childElement = await createFileElement(entry, directoryHandle, level);
     } else if (entry.kind === 'directory') {
-      childElement = await createDirectoryElement(entry, directoryHandle, level);
+      childElement = await createDirectoryElement(entry, directoryHandle, level, directoryHandle); // Pass current directory as parent
     }
     container.appendChild(childElement);
   }
