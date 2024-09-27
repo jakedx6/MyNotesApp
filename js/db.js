@@ -18,10 +18,15 @@ export const dbPromise = openDB('markdown-notes-db', 2, {
 });
 
 // Store the directory handles in IndexedDB
-export async function storeDirectoryHandles(rootHandle, currentHandle) {
+export async function storeDirectoryCurrentHandle(currentHandle) {
+  const db = await dbPromise;
+  await db.put('handles', { id: 'current', handle: currentHandle });
+}
+
+// Store the directory handles in IndexedDB
+export async function storeDirectoryRootHandle(rootHandle) {
   const db = await dbPromise;
   await db.put('handles', { id: 'root', handle: rootHandle });
-  await db.put('handles', { id: 'current', handle: currentHandle });
 }
 
 // Retrieve the stored directory handles

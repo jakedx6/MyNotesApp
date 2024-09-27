@@ -1,7 +1,7 @@
 // fileSystem.js
 
 import { verifyPermission } from './permissions.js';
-import { storeDirectoryHandles, dbPromise, getStoredDirectoryHandles } from './db.js';
+import { storeDirectoryCurrentHandle, storeDirectoryRootHandle, dbPromise, getStoredDirectoryHandles } from './db.js';
 import { sortEntries, toggleEditorDisplay, highlightSelectedFile } from './utils.js';
 import { createFileElement, createDirectoryElement } from './domElements.js';
 import { initializeEditor } from './editor.js';
@@ -17,7 +17,8 @@ export async function requestDirectoryAccess(startIn = undefined) {
     rootDirectoryHandle = await window.showDirectoryPicker(options);
     currentDirectoryHandle = rootDirectoryHandle;
     currentFileHandle = null; // Clear current file handle
-    await storeDirectoryHandles(rootDirectoryHandle, currentDirectoryHandle);
+    await storeDirectoryRootHandle(rootDirectoryHandle);
+    await storeDirectoryCurrentHandle(currentDirectoryHandle);
     renderDirectoryTree(currentDirectoryHandle);
     initializeEditor(''); // Clear the editor content
 
@@ -45,7 +46,7 @@ export async function changeMainDirectory() {
 // Update current directory handle and store it
 export function updateCurrentDirectoryHandle(handle) {
   currentDirectoryHandle = handle;
-  storeDirectoryHandles(rootDirectoryHandle, currentDirectoryHandle);
+  storeDirectoryCurrentHandle(currentDirectoryHandle);
 }
 
 // Render the directory tree
@@ -177,6 +178,7 @@ export async function createNote(noteName) {
 // Create a new folder
 export async function createFolder(folderName) {
   try {
+    console.log('Current Directory Handle:', currentDirectoryHandle); 
     await currentDirectoryHandle.getDirectoryHandle(folderName, { create: true });
     renderDirectoryTree(rootDirectoryHandle); // Refresh the tree from the root
   } catch (error) {
@@ -189,6 +191,43 @@ export function promptCreateFolder() {
   const folderName = prompt('Enter folder name:');
   if (folderName) {
     createFolder(folderName);
+  }
+}
+
+// Delete a folder and its contents recursively
+export async function deleteFolder(directoryHandle, parentDirectoryHandle) {
+  try {
+    const hasPermission = await verifyPermission(directoryHandle, 'readwrite');
+    if (!hasPermission) {
+      console.error('No permission to delete this folder.');
+      alert('Permission denied to delete this folder.');
+      return;
+    }
+
+    // Recursively delete contents
+    await recursivelyDeleteDirectory(directoryHandle);
+
+    // Remove the directory entry from its parent
+    if (parentDirectoryHandle) {
+      await parentDirectoryHandle.removeEntry(directoryHandle.name, { recursive: true });
+      console.log(`Folder "${directoryHandle.name}" deleted successfully.`);
+    } else {
+      console.error('Cannot find parent directory handle.');
+    }
+  } catch (error) {
+    console.error('Error deleting folder:', error);
+  }
+}
+
+// Helper function to recursively delete directory contents
+async function recursivelyDeleteDirectory(directoryHandle) {
+  for await (const entry of directoryHandle.values()) {
+    if (entry.kind === 'file') {
+      await directoryHandle.removeEntry(entry.name);
+    } else if (entry.kind === 'directory') {
+      await recursivelyDeleteDirectory(entry);
+      await directoryHandle.removeEntry(entry.name, { recursive: true });
+    }
   }
 }
 

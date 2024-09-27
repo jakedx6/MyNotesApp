@@ -36,7 +36,7 @@ export function initializeEditor(content = '') {
                     action: async function customExpand(editor) {
                         await handleOllamaAction('expand', editor);
                     },
-                    className: 'fa fa-expand bg-orange-400',
+                    className: 'fa fa-expand',
                     title: 'Expand Selection'
                 },
                 {
@@ -44,7 +44,7 @@ export function initializeEditor(content = '') {
                     action: async function customImprove(editor) {
                         await handleOllamaAction('improve', editor);
                     },
-                    className: 'fa fa-magic bg-orange-400',
+                    className: 'fa fa-magic',
                     title: 'Improve Selection',
                 },
                 {
@@ -52,7 +52,7 @@ export function initializeEditor(content = '') {
                     action: async function customSummarize(editor) {
                         await handleOllamaAction('summarize', editor);
                     },
-                    className: 'fa fa-align-left bg-orange-400',
+                    className: 'fa fa-align-left',
                     title: 'Summarize Selection',
                 },
             ],
