@@ -35,18 +35,26 @@ export function debounce(func, wait) {
     }
   }
   
-  // Toggle editor display based on whether a file is open
-  export function toggleEditorDisplay(showEditor) {
-    const editorContainer = document.getElementById('editor-container');
-    const placeholderContainer = document.getElementById('placeholder-container');
-    if (showEditor) {
-      if (editorContainer) editorContainer.style.display = 'block';
-      if (placeholderContainer) placeholderContainer.style.display = 'none';
-    } else {
-      if (editorContainer) editorContainer.style.display = 'none';
-      if (placeholderContainer) placeholderContainer.style.display = 'flex';
-    }
+// Toggle editor display based on whether a file is open
+export function toggleEditorDisplay(showEditor) {
+  const editorContainer = document.getElementById('editor-container');
+  const placeholderContainer = document.getElementById('placeholder-container');
+
+  if (showEditor === true) {
+    // Show the editor, hide the placeholder
+    if (editorContainer) editorContainer.style.display = 'block';
+    if (placeholderContainer) placeholderContainer.style.display = 'none';
+  } else if (showEditor === false) {
+    // Hide the editor, show the placeholder
+    if (editorContainer) editorContainer.style.display = 'none';
+    if (placeholderContainer) placeholderContainer.style.display = 'flex';
+  } else {
+    // Third state: Hide both the editor and the placeholder
+    if (editorContainer) editorContainer.style.display = 'none';
+    if (placeholderContainer) placeholderContainer.style.display = 'none';
   }
+}
+
   
   // Highlight the selected file in the directory tree
   let previousSelectedFileItem = null;
@@ -68,4 +76,6 @@ export function debounce(func, wait) {
       }
     });
   }
+
+  
   

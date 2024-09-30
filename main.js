@@ -1,6 +1,6 @@
 // main.js
 
-import { getStoredDirectoryHandles } from './js/db.js';
+import { getStoredDirectoryHandles, getSetting } from './js/db.js';
 import { renderDirectoryTree } from './js/directoryTree.js';
 import { initializeEventListeners } from './js/eventListeners.js';
 import { toggleEditorDisplay, showElement } from './js/utils.js';
@@ -11,6 +11,15 @@ import { verifyPermission } from './js/permissions.js';
 let rootDirectoryHandle;
 let currentDirectoryHandle;
 let currentFileHandle;
+
+async function applyDarkModeSetting() {
+  const isDarkMode = await getSetting('darkMode');
+  if (isDarkMode === true || isDarkMode === 'true') {
+    document.documentElement.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
+}
 
 // Attempt to load the stored directory handle on app load
 window.addEventListener('DOMContentLoaded', async () => {
@@ -32,6 +41,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     showOpenDirectoryPrompt();
   }
 
+  await applyDarkModeSetting();
+
   // Register the service worker
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js', { scope: '/' })
@@ -43,4 +54,5 @@ window.addEventListener('DOMContentLoaded', async () => {
 // Show the open directory prompt
 function showOpenDirectoryPrompt() {
   showElement('prompt-container');
+  toggleEditorDisplay(null);
 }
