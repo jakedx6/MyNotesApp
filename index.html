@@ -44,13 +44,14 @@
 
 <body class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100">
   <div id="app" class="flex flex-col h-screen">
-    <header class="bg-gray-100 dark:bg-gray-800 p-4 flex items-center justify-between">
+    <header class="bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between">
       <h1 class="text-xl font-bold">Markdown Notes</h1>
       <div class="flex items-center space-x-2">
         <button id="new-note-btn" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">New Note</button>
         <button id="new-folder-btn" class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600">New
           Folder</button>
-        <button id="open-settings-btn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600">Settings</button>
+        <button id="open-settings-btn"
+          class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600">Settings</button>
       </div>
     </header>
     <div class="flex flex-1 overflow-hidden">
@@ -67,7 +68,7 @@
           </div>
         </div>
         <!-- Editor -->
-        <div id="editor-container" class="flex-1 overflow-y-auto h-screen">
+        <div id="editor-container" class="flex-1 overflow-hidden h-screen">
           <textarea id="editor" style="display: none;"></textarea>
         </div>
         <!-- Placeholder Message -->
@@ -81,25 +82,27 @@
   </div>
 
   <!-- AI Response Modal -->
-  <div id="ai-response-modal" class="fixed inset-0 z-50 flex items-center justify-center content-center h-screen bg-black bg-opacity-50"
-  style="display: none;">
-  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-11/12 max-w-md mx-auto">
-    <!-- Modal Header -->
-    <div class="flex items-center justify-between px-4 py-2 border-b border-gray-200 dark:border-gray-700">
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">AI Response</h2>
-      <button id="close-modal"
-        class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 focus:outline-none cursor-pointer">&times;</button>
-    </div>
-    <div class="modal-content bg-white dark:bg-gray-800 rounded-lg shadow-lg w-11/12 max-w-md mx-auto">
-      <textarea id="ai-response-text" class="w-full h-96" readonly></textarea>
-      <div class="modal-actions">
-        <button id="copy-button" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Copy</button>
-        <button id="append-button" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Append</button>
-        <button id="replace-button" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Replace</button>
+  <div id="ai-response-modal"
+    class="fixed inset-0 z-50 flex items-center justify-center content-center h-screen bg-black bg-opacity-50"
+    style="display: none;">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-11/12 max-w-md mx-auto">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">AI Response</h2>
+        <button id="close-modal"
+          class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 focus:outline-none cursor-pointer">&times;</button>
+      </div>
+      <div class="modal-content bg-white dark:bg-gray-800 rounded-lg shadow-lg w-11/12 max-w-md mx-auto">
+        <textarea id="ai-response-text" class="w-full h-96" readonly></textarea>
+        <div class="modal-actions">
+          <button id="copy-button" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Copy</button>
+          <button id="append-button" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Append</button>
+          <button id="replace-button"
+            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Replace</button>
+        </div>
       </div>
     </div>
   </div>
-
 
   <!-- Settings Modal -->
   <div id="settings-modal"
@@ -121,7 +124,7 @@
             class="mt-1 p-2 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-blue-500 focus:outline-none">
         </div>
         <div class="flex mb-3">
-          <button id="toggle-dark-mode-btn"
+          <button id="dark-mode-toggle"
             class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600">
             Toggle Dark Mode
           </button>
@@ -141,13 +144,14 @@
         </button>
       </div>
     </div>
+  </div>
 
-    <!-- Include idb library for IndexedDB (version 6) -->
-    <script src="https://unpkg.com/idb@6.1.5/build/iife/index-min.js"></script>
-    <!-- Include EasyMDE JS -->
-    <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
-    <!-- Your app.js script -->
-    <script type="module" src="main.js"></script>
+  <!-- Include idb library for IndexedDB (version 6) -->
+  <script src="https://unpkg.com/idb@6.1.5/build/iife/index-min.js"></script>
+  <!-- Include EasyMDE JS -->
+  <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+  <!-- Your app.js script -->
+  <script type="module" src="main.js"></script>
 </body>
 
 </html>

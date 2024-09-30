@@ -2,7 +2,7 @@
 
 import { verifyPermission } from './permissions.js';
 import { createFileElement, createDirectoryElement } from './domElements.js';
-import { hideElement, showElement } from './utils.js';
+import { hideElement, showElement, toggleEditorDisplay } from './utils.js';
 import { sortEntries } from './utils.js';
 
 /*** Directory Tree Rendering ***/

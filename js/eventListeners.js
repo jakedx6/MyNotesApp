@@ -24,7 +24,7 @@ export function initializeEventListeners() {
   });
 
   // Toggle dark mode
-  document.getElementById('toggle-dark-mode-btn').addEventListener('click', () => {
+  document.getElementById('dark-mode-toggle').addEventListener('click', () => {
     toggleDarkMode();
   });
 
@@ -34,13 +34,13 @@ export function initializeEventListeners() {
   });
 
   document.getElementById('open-settings-btn').addEventListener('click', openSettingsModal);
+
   document.getElementById('close-settings-modal').addEventListener('click', closeSettingsModal);
 
   document.getElementById('save-settings-btn').addEventListener('click', async () => {
     const urlInput = document.getElementById('ollama-url-input').value.trim();
     if (urlInput) {
       await saveSetting('ollamaUrl', urlInput);
-      alert('Settings saved.');
       closeSettingsModal();
     } else {
       alert('Please enter a valid URL.');
@@ -56,7 +56,11 @@ export function initializeEventListeners() {
   });
 }
 
-// Toggle between light and dark mode
-function toggleDarkMode() {
+async function toggleDarkMode() {
   document.documentElement.classList.toggle('dark');
+  // Determine if dark mode is currently enabled
+  const isDarkMode = document.documentElement.classList.contains('dark');
+  // Save the setting to IndexedDB
+  await saveSetting('darkMode', isDarkMode);
 }
+

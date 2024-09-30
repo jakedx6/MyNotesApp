@@ -12,7 +12,6 @@ body {
 }
 
 header {
-  background-color: var(--color-gray-100);
   padding: 10px;
   display: flex;
   align-items: center;
@@ -94,45 +93,6 @@ main {
   padding: 10px;
   overflow-y: auto;
   background-color: var(--color-gray-200);
-}
-
-/* Add this CSS to your styles */
-.bg-blue-200 {
-  background-color: var(--color-blue-200);
-  /* Light blue background for selected item */
-}
-
-.dark .bg-blue-800 {
-  background-color: var(--color-blue-800);
-  /* Dark blue background for selected item in dark mode */
-}
-
-/* Dark mode styles */
-html.dark .modal-content {
-  background-color: var(--color-gray-800);
-  color: var(--color-slate-200);
-}
-
-html.dark .modal-content textarea {
-  background-color: var(--color-gray-900);
-  color: var(--color-slate-200);
-  padding: 1rem;
-}
-
-html.dark .modal-button {
-  background-color: var(--color-gray-700);
-  color: var(--color-slate-200);
-}
-
-html.dark .modal-button:hover {
-  background-color: var(--color-gray-600);
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  /* Add gap between buttons */
 }
 
 html.dark ::selection {
