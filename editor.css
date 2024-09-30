@@ -1,3 +1,8 @@
+
+.CodeMirror {
+  height: 87vh !important;
+}
+
 /* Custom styles for EasyMDE in dark mode */
 html.dark .editor-toolbar {
     background-color: var(--color-gray-800); /* Darker background for toolbar */
