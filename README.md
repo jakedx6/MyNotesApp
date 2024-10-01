@@ -6,13 +6,10 @@ A feature-rich Markdown Notes editor with directory navigation, dark mode suppor
 ## **Table of Contents**
 
 -   [Features](#features)
--   [Demo](#demo)
 -   [Prerequisites](#prerequisites)
 -   [Installation](#installation)
 -   [Usage](#usage)
 -   [AI Integration with Ollama](#ai-integration-with-ollama)
--   [Configuration](#configuration)
--   [Troubleshooting](#troubleshooting)
 -   [Contributing](#contributing)
 -   [License](#license)
 
@@ -29,8 +26,6 @@ A feature-rich Markdown Notes editor with directory navigation, dark mode suppor
     -   **Improve:** Enhance the quality of your writing.
     -   **Summarize:** Generate concise summaries of your content.
 -   **AI Response Preview:** Preview AI-generated content before appending or replacing text.
--   **Keyboard Shortcuts:** Boost productivity with handy keyboard shortcuts.
--   **Responsive Design:** Optimized for various screen sizes, including mobile devices.
 
 ----------
 
@@ -38,7 +33,7 @@ A feature-rich Markdown Notes editor with directory navigation, dark mode suppor
 
 -   **Node.js and NPM:** Ensure you have Node.js and NPM installed.
 -   **Ollama API:** Install and run the Ollama API on your local machine.
--   **Supported Browsers:** Latest versions of Chrome, Firefox, or Edge.
+-   **Docker:** Ensure you have Docker installed to run the app using Docker Compose.
 
 ----------
 
@@ -50,18 +45,18 @@ bash
 
 Copy code
 
-`git clone https://github.com/yourusername/markdown-editor-ai.git
-cd markdown-editor-ai` 
+`git clone https://github.com/jakedx6/MyNotesApp
+cd MyNotesApp` 
 
-### **2. Install Dependencies**
-
-Since this is a simple web application, dependencies are minimal.
-
-If you're using any package managers or build tools, install dependencies accordingly.
-
-### **3. Set Up Ollama API**
+### **2. Set Up Ollama**
 
 Ensure that the Ollama API is installed and running on your local machine.
+
+### **3.  Run the Application using Docker Compose**
+
+Run the following command to build and start the application:
+
+`docker-compose up --build`
 
 ----------
 
@@ -69,36 +64,9 @@ Ensure that the Ollama API is installed and running on your local machine.
 
 ### **1. Start the Application**
 
-Since this is a web application, you can run it by opening the `index.html` file in your browser.
+Once the setup is complete, the frontend will be accessible at http://localhost:8080 and the backend at http://localhost:3010.
 
-Alternatively, you can serve it using a local development server:
-
-bash
-
-Copy code
-
-`# Using Node.js http-server
-npm install -g http-server
-http-server` 
-
-Then navigate to `http://localhost:8080` in your browser.
-
-### **2. Open the Application**
-
--   Navigate to the application URL in your web browser.
--   You may need to allow the browser to access local files and directories.
-
-### **3. Select a Directory**
-
--   Click on the **"Open Directory"** button to grant the application access to a directory.
--   The directory tree will display files and folders within the selected directory.
-
-### **4. Edit Markdown Files**
-
--   Click on a Markdown file (`.md`) in the directory tree to open it in the editor.
--   The editor supports syntax highlighting and Markdown preview.
-
-### **5. Use AI Assistance**
+### **2. Use AI Assistance**
 
 -   **Select text** within the editor that you want to modify.
 -   Click on one of the AI action buttons in the toolbar:
@@ -111,10 +79,6 @@ Then navigate to `http://localhost:8080` in your browser.
 -   A modal dialog will display the AI-generated response.
 -   Choose to **Append** or **Replace** the selected text with the AI response.
 
-### **6. Toggle Dark Mode**
-
--   Click on the **"Toggle Dark Mode"** button to switch between light and dark themes.
-
 ----------
 
 ## **AI Integration with Ollama**
@@ -125,10 +89,6 @@ Follow the [Ollama installation guide](https://github.com/jmorganca/ollama#insta
 
 ### **2. Start the Ollama Server**
 
-bash
-
-Copy code
-
 `ollama serve` 
 
 By default, the Ollama server runs on `http://localhost:11434`.
@@ -137,73 +97,7 @@ By default, the Ollama server runs on `http://localhost:11434`.
 
 Install the desired AI model, for example:
 
-bash
-
-Copy code
-
 `ollama pull llama3.1` 
-
-### **4. Update Model Name in Application**
-
-Ensure that the model name in the application matches the installed model.
-
-In `app.js`, update the model name in the `handleOllamaAction` function:
-
-javascript
-
-Copy code
-
-`body: JSON.stringify({
-  model: 'llama3.1', // Replace with your actual model name
-  prompt: prompt,
-}),` 
-
-----------
-
-## **Configuration**
-
-### **Application Settings**
-
--   **Dark Mode:** The application remembers your dark mode preference using the `dark` class on the `<html>` element.
--   **Editor Settings:** Customize the editor options in the `initializeEditor` function in `app.js`.
-
-### **Ollama API Settings**
-
--   **Port and Host:** If the Ollama API runs on a different host or port, update the API endpoint in `app.js`:
-
-javascript
-
-Copy code
-
-`const response = await fetch('http://localhost:11434/api/generate', { ... });` 
-
-----------
-
-## **Troubleshooting**
-
-### **1. Cannot Access Local Files**
-
--   Ensure your browser allows file system access.
--   If using Chrome, you may need to launch it with specific flags or use a local server.
-
-### **2. Ollama API Errors**
-
--   **404 Not Found:**
-    -   Verify that the Ollama server is running.
-    -   Ensure the API endpoint in the code matches the server's endpoint.
--   **Model Not Found:**
-    -   Confirm that the AI model is installed and the model name is correct.
--   **Syntax Errors in Response:**
-    -   Update the `handleOllamaAction` function to properly handle streaming responses.
-
-### **3. CORS Issues**
-
--   If you encounter CORS errors, consider adjusting the Ollama server's CORS settings or using a proxy.
-
-### **4. Editor Note Updating**
-
--   Ensure that event listeners are correctly attached.
--   Verify that the editor's initialization logic is functioning.
 
 ----------
 
@@ -216,25 +110,13 @@ Contributions are welcome! Please follow these steps:
     -   Click on the "Fork" button at the top right of the repository page.
 2.  **Create a Feature Branch**
     
-    bash
-    
-    Copy code
-    
     `git checkout -b feature/your-feature-name` 
     
 3.  **Commit Your Changes**
     
-    bash
-    
-    Copy code
-    
     `git commit -m "Add your commit message"` 
     
 4.  **Push to Your Fork**
-    
-    bash
-    
-    Copy code
     
     `git push origin feature/your-feature-name` 
     

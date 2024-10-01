@@ -1,8 +1,8 @@
 // editor.js
 
 import { handleOllamaAction } from './ai.js';
-import { currentFileHandle } from './fileSystem.js';
-import { verifyPermission } from './permissions.js';
+import { currentFilePath } from './fileSystem.js';
+import { saveFile } from './fileSystem.js';
 import { debounce } from './utils.js';
 
 let easyMDE;
@@ -30,14 +30,14 @@ export function initializeEditor(content = '') {
             toolbar: [
                 'bold', 'italic', 'heading', '|',
                 'quote', 'code', 'table', 'horizontal-rule', '|',
-                'link', 'image','|', 'preview', 'side-by-side', 'fullscreen', '|',
+                'link', 'image', '|', 'preview', 'side-by-side', 'fullscreen', '|',
                 {
                     name: 'expand',
                     action: async function customExpand(editor) {
                         await handleOllamaAction('expand', editor);
                     },
                     className: 'fa fa-expand',
-                    title: 'Expand Selection'
+                    title: 'Expand Selection',
                 },
                 {
                     name: 'improve',
@@ -66,39 +66,18 @@ export function initializeEditor(content = '') {
     }
 
     // Disable or enable the editor based on whether a file is open
-    if (!currentFileHandle) {
+    if (!currentFilePath) {
         easyMDE.codemirror.setOption('readOnly', 'nocursor');
     } else {
         easyMDE.codemirror.setOption('readOnly', false);
     }
 }
 
-async function saveFile(fileHandle, content) {
-    try {
-      const hasPermission = await verifyPermission(fileHandle, 'readwrite');
-      if (!hasPermission) {
-        console.error('Write permission denied for file:', fileHandle.name);
-        alert('Write permission denied. Please grant permission to save changes.');
-        return;
-      }
-      const writable = await fileHandle.createWritable();
-      await writable.write(content);
-      await writable.close();
-      console.log('File saved successfully:', fileHandle.name);
-    } catch (error) {
-      console.error('Error saving file:', error);
-      if (error.name === 'InvalidStateError') {
-        alert('An error occurred while saving the file. Please try re-opening the file.');
-        currentFileHandle = null;
-      }
-    }
-  }
-
 // Handle editor content change
 function handleEditorChange() {
-    if (currentFileHandle) {
-        console.log('Attempting to save file:', currentFileHandle.name);
-        saveFileWithDebounce(currentFileHandle, easyMDE.value());
+    if (currentFilePath) {
+        console.log('Attempting to save file:', currentFilePath);
+        saveFileWithDebounce(easyMDE.value());
     } else {
         console.log('No file is currently open; changes will not be saved.');
         easyMDE.codemirror.setOption('readOnly', 'nocursor');
@@ -106,9 +85,9 @@ function handleEditorChange() {
 }
 
 // Save file with debounce to prevent frequent writes
-const saveFileWithDebounce = debounce(async (fileHandle, content) => {
-    await saveFile(fileHandle, content);
+const saveFileWithDebounce = debounce(async (content) => {
+    await saveFile(content);
 }, 500);
 
 // Export variables if needed
-export { easyMDE, currentFileHandle };
+export { easyMDE };

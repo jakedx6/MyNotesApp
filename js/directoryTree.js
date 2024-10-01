@@ -1,55 +1,63 @@
 // directoryTree.js
 
-import { verifyPermission } from './permissions.js';
+import { API_BASE_URL } from './config.js';
 import { createFileElement, createDirectoryElement } from './domElements.js';
-import { hideElement, showElement, toggleEditorDisplay } from './utils.js';
+import { hideElement, showElement } from './utils.js';
 import { sortEntries } from './utils.js';
 
 /*** Directory Tree Rendering ***/
 
-let rootDirectoryHandle;
-let currentDirectoryHandle;
+// Render the directory tree starting from the root path
+export async function renderDirectoryTree() {
+  try {
+    hideElement('prompt-container');
+    showElement('editor-container');
+    showElement('folder-list');
 
-export async function renderDirectoryTree(directoryHandle = rootDirectoryHandle) {
-  // Verify permission before accessing the directory
-  const hasPermission = await verifyPermission(directoryHandle);
-  if (!hasPermission) {
-    console.error('Permission to access the directory was denied.');
+    // Clear the folderList contents
+    const folderList = document.getElementById('folder-list');
+    folderList.innerHTML = '';
+
+    // Fetch and render the root directory
+    await loadAndRenderDirectoryContents('', folderList, 0);
+  } catch (error) {
+    console.error('Error rendering directory tree:', error);
     showOpenDirectoryPrompt();
-    return;
   }
-
-  hideElement('prompt-container');
-  showElement('editor-container');
-  showElement('folder-list');
-
-  // Clear the folderList contents
-  const folderList = document.getElementById('folder-list');
-  folderList.innerHTML = '';
-
-  // Collect and render entries
-  await loadAndRenderDirectoryContents(directoryHandle, folderList, 0);
 }
 
 // Load and render directory contents recursively
-export async function loadAndRenderDirectoryContents(directoryHandle, container, level, parentDirectoryHandle) {
-  // Collect entries
-  const entries = [];
-  for await (const entry of directoryHandle.values()) {
-    entries.push(entry);
-  }
-
-  // Sort entries
-  entries.sort(sortEntries);
-
-  // Render sorted entries
-  for (const entry of entries) {
-    let childElement;
-    if (entry.kind === 'file') {
-      childElement = await createFileElement(entry, directoryHandle, level);
-    } else if (entry.kind === 'directory') {
-      childElement = await createDirectoryElement(entry, directoryHandle, level, directoryHandle); // Pass current directory as parent
+export async function loadAndRenderDirectoryContents(path, container, level) {
+  try {
+    // Fetch directory contents from the server
+    const response = await fetch(`${API_BASE_URL}/api/directories/${encodeURIComponent(path)}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch directory contents');
     }
-    container.appendChild(childElement);
+    const entries = await response.json();
+
+    // Sort entries
+    entries.sort(sortEntries);
+
+    // Render sorted entries
+    for (const entry of entries) {
+      let childElement;
+      if (entry.isDirectory) {
+        childElement = await createDirectoryElement(entry, level);
+      } else {
+        childElement = await createFileElement(entry, level);
+      }
+      container.appendChild(childElement);
+    }
+  } catch (error) {
+    console.error('Error loading directory contents:', error);
+  }
+}
+
+// Show the open directory prompt (modify as needed)
+export function showOpenDirectoryPrompt() {
+  const promptContainer = document.getElementById('prompt-container');
+  if (promptContainer) {
+    promptContainer.style.display = 'flex';
   }
 }

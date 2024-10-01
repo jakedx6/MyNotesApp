@@ -1,154 +1,146 @@
 // fileSystem.js
 
-import { verifyPermission } from './permissions.js';
-import { storeDirectoryCurrentHandle, storeDirectoryRootHandle, dbPromise, getStoredDirectoryHandles } from './db.js';
-import { sortEntries, toggleEditorDisplay, highlightSelectedFile } from './utils.js';
+import { API_BASE_URL } from './config.js';
+import { sortEntries, toggleEditorDisplay, highlightSelectedFile, hideElement, showElement } from './utils.js';
 import { createFileElement, createDirectoryElement } from './domElements.js';
 import { initializeEditor } from './editor.js';
 
-export let rootDirectoryHandle;
-export let currentDirectoryHandle;
-export let currentFileHandle;
+export let currentFilePath = null;
+export let currentFolderPath = ''; // Initialize to root
 
-// Request access to a directory
-export async function requestDirectoryAccess(startIn = undefined) {
+// Setter function for currentFolderPath
+export function setCurrentFolderPath(newPath) {
+  currentFolderPath = newPath;
+  console.log(`Current Folder Path set to: ${currentFolderPath}`); // Debugging statement
+}
+
+// Getter for currentFolderPath
+export function getCurrentFolderPath() {
+  return currentFolderPath;
+}
+
+// Generates a list of paths that need to be open based on currentFolderPath.
+function getPathsToOpen() {
+  if (!currentFolderPath) return [];
+  const parts = currentFolderPath.split('/').filter(part => part); // Remove empty parts
+  const paths = [];
+  for (let i = 1; i <= parts.length; i++) {
+    const path = parts.slice(0, i).join('/');
+    paths.push(path);
+  }
+  return paths;
+}
+
+// Fetch and render the directory tree from the server
+export async function renderDirectoryTree() {
   try {
-    const options = startIn ? { startIn } : {};
-    rootDirectoryHandle = await window.showDirectoryPicker(options);
-    currentDirectoryHandle = rootDirectoryHandle;
-    currentFileHandle = null; // Clear current file handle
-    await storeDirectoryRootHandle(rootDirectoryHandle);
-    await storeDirectoryCurrentHandle(currentDirectoryHandle);
-    renderDirectoryTree(currentDirectoryHandle);
-    initializeEditor(''); // Clear the editor content
+    // Determine the paths that need to be open based on currentFolderPath
+    const pathsToOpen = getPathsToOpen();
 
-    // Hide the editor and show the placeholder
-    toggleEditorDisplay(false);
+    // Fetch the root directory contents (empty path for the root)
+    await renderDirectoryContents('', document.getElementById('folder-list'), 0, pathsToOpen);
+
+    hideElement('prompt-container');
+    showElement('editor-container');
+    showElement('folder-list');
   } catch (error) {
-    console.error('Directory access was not granted:', error);
+    console.error('Error rendering directory tree:', error);
     showOpenDirectoryPrompt();
   }
 }
 
-// Export the full changeMainDirectory function as requested
-export async function changeMainDirectory() {
+// Render directory contents recursively
+export async function renderDirectoryContents(folderPath, container, level, pathsToOpen = []) {
   try {
-    const success = await requestDirectoryAccess();
-    if (success) {
-      // Directory access was successful
-      // The calling code should handle rendering the directory tree
+    // Fetch directory contents from the server
+    const response = await fetch(`${API_BASE_URL}/api/directories/${encodeURIComponent(folderPath)}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch directory contents');
+    }
+    let entries = await response.json();
+
+    // Sort entries
+    entries.sort(sortEntries);
+
+    // Clear the container before rendering
+    container.innerHTML = '';
+
+    // Render sorted entries
+    for (const entry of entries) {
+      let childElement;
+      if (entry.isDirectory) {
+        childElement = await createDirectoryElement(entry, level, pathsToOpen);
+      } else {
+        childElement = await createFileElement(entry, level);
+      }
+      container.appendChild(childElement);
     }
   } catch (error) {
-    console.error('Error changing directory:', error);
-  }
-}
-
-// Update current directory handle and store it
-export function updateCurrentDirectoryHandle(handle) {
-  currentDirectoryHandle = handle;
-  storeDirectoryCurrentHandle(currentDirectoryHandle);
-}
-
-// Render the directory tree
-export async function renderDirectoryTree(directoryHandle = rootDirectoryHandle) {
-  // Verify permission before accessing the directory
-  const hasPermission = await verifyPermission(directoryHandle);
-  if (!hasPermission) {
-    console.error('Permission to access the directory was denied.');
-    showOpenDirectoryPrompt();
-    return;
-  }
-
-  hideElement('prompt-container');
-  showElement('editor-container');
-  showElement('folder-list');
-
-  // Clear the folderList contents
-  const folderList = document.getElementById('folder-list');
-  folderList.innerHTML = '';
-
-  // Collect and render entries
-  await loadAndRenderDirectoryContents(directoryHandle, folderList, 0);
-}
-
-// Load and render directory contents recursively
-export async function loadAndRenderDirectoryContents(directoryHandle, container, level) {
-  // Collect entries
-  const entries = [];
-  for await (const entry of directoryHandle.values()) {
-    entries.push(entry);
-  }
-
-  // Sort entries
-  entries.sort(sortEntries);
-
-  // Render sorted entries
-  for (const entry of entries) {
-    let childElement;
-    if (entry.kind === 'file') {
-      childElement = await createFileElement(entry, directoryHandle, level);
-    } else if (entry.kind === 'directory') {
-      childElement = await createDirectoryElement(entry, directoryHandle, level);
-    }
-    container.appendChild(childElement);
+    console.error('Error loading directory contents:', error);
+    alert('Failed to load directory contents.');
   }
 }
 
 // Open and display a markdown file
-export async function openFile(fileHandle, parentDirectoryHandle) {
+export async function openFile(filePath) {
   try {
-    const file = await fileHandle.getFile();
-    const content = await file.text();
-    currentFileHandle = fileHandle;
-    initializeEditor(content || ''); // Ensure content is a string
-    updateCurrentDirectoryHandle(parentDirectoryHandle);
+    const response = await fetch(`${API_BASE_URL}/api/files/${encodeURIComponent(filePath)}`);
+    if (!response.ok) {
+      throw new Error('Failed to open file');
+    }
+    const content = await response.text();
+    currentFilePath = filePath;
+    initializeEditor(content || '');
 
     // Show the editor and hide the placeholder
     toggleEditorDisplay(true);
 
     // Highlight the selected file
-    highlightSelectedFile(fileHandle.name);
+    highlightSelectedFile(filePath);
   } catch (error) {
     console.error('Error opening file:', error);
+    alert('Failed to open the file. Please try again.');
   }
 }
 
 // Save file content
-export async function saveFile(fileHandle, content) {
+export async function saveFile(content) {
   try {
-    const hasPermission = await verifyPermission(fileHandle, 'readwrite');
-    if (!hasPermission) {
-      console.error('Write permission denied for file:', fileHandle.name);
-      alert('Write permission denied. Please grant permission to save changes.');
+    if (!currentFilePath) {
+      alert('No file is currently open.');
       return;
     }
-    const writable = await fileHandle.createWritable();
-    await writable.write(content);
-    await writable.close();
-    console.log('File saved successfully:', fileHandle.name);
+    const response = await fetch(`${API_BASE_URL}/api/files/${encodeURIComponent(currentFilePath)}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'text/plain',
+      },
+      body: content,
+    });
+    if (!response.ok) {
+      throw new Error('Failed to save file');
+    }
+    console.log('File saved successfully:', currentFilePath);
   } catch (error) {
     console.error('Error saving file:', error);
-    if (error.name === 'InvalidStateError') {
-      alert('An error occurred while saving the file. Please try re-opening the file.');
-      currentFileHandle = null;
-    }
+    alert('An error occurred while saving the file.');
   }
 }
 
 // Delete a file
-export async function deleteFile(fileHandle, directoryHandle) {
+export async function deleteFile(filePath) {
   try {
-    const hasPermission = await verifyPermission(directoryHandle, 'readwrite');
-    if (!hasPermission) {
-      console.error('No permission to delete files in this directory.');
-      return;
+    const response = await fetch(`${API_BASE_URL}/api/files/${encodeURIComponent(filePath)}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error('Failed to delete file');
     }
-    await directoryHandle.removeEntry(fileHandle.name);
-    console.log(`File "${fileHandle.name}" deleted successfully.`);
+    console.log(`File "${filePath}" deleted successfully.`);
 
     // If the deleted file is currently open, hide the editor
-    if (currentFileHandle && currentFileHandle.name === fileHandle.name) {
-      currentFileHandle = null;
+    if (currentFilePath === filePath) {
+      currentFilePath = null;
       // Clear the editor content
       initializeEditor('');
       // Hide the editor and show the placeholder
@@ -156,33 +148,73 @@ export async function deleteFile(fileHandle, directoryHandle) {
     }
 
     // Refresh the directory tree
-    await renderDirectoryTree(rootDirectoryHandle);
+    await renderDirectoryTree();
   } catch (error) {
     console.error('Error deleting file:', error);
+    alert('An error occurred while deleting the file.');
   }
 }
 
 // Create a new markdown note
 export async function createNote(noteName) {
   try {
-    const fileHandle = await currentDirectoryHandle.getFileHandle(`${noteName}.md`, { create: true });
-    currentFileHandle = fileHandle; // Set currentFileHandle
-    await saveFile(fileHandle, '');
-    renderDirectoryTree(rootDirectoryHandle);
-    await openFile(fileHandle, currentDirectoryHandle); // Open the new note
+    // Determine the target folder path
+    const targetFolder = currentFolderPath || ''; // Use root if no folder is open
+    const filePath = targetFolder ? `${targetFolder}/${noteName}.md` : `${noteName}.md`;
+
+    const response = await fetch(`${API_BASE_URL}/api/files/${encodeURIComponent(filePath)}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'text/plain',
+      },
+      body: '', // Empty content for a new file
+    });
+    if (!response.ok) {
+      throw new Error('Failed to create note');
+    }
+    currentFilePath = filePath;
+    await renderDirectoryTree();
+    await openFile(filePath); // Open the new note
   } catch (error) {
     console.error('Error creating note:', error);
+    alert('An error occurred while creating the note.');
   }
 }
 
 // Create a new folder
 export async function createFolder(folderName) {
   try {
-    console.log('Current Directory Handle:', currentDirectoryHandle); 
-    await currentDirectoryHandle.getDirectoryHandle(folderName, { create: true });
-    renderDirectoryTree(rootDirectoryHandle); // Refresh the tree from the root
+    // Determine the target parent folder path
+    const targetFolder = currentFolderPath || ''; // Use root if no folder is open
+    const folderPath = targetFolder ? `${targetFolder}/${folderName}` : `${folderName}`;
+
+    const response = await fetch(`${API_BASE_URL}/api/directories/${encodeURIComponent(folderPath)}`, {
+      method: 'POST',
+    });
+    if (!response.ok) {
+      throw new Error('Failed to create folder');
+    }
+    await renderDirectoryTree(); // Refresh the tree
   } catch (error) {
     console.error('Error creating folder:', error);
+    alert('An error occurred while creating the folder.');
+  }
+}
+
+// Delete a folder and its contents recursively
+export async function deleteFolder(folderPath) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/directories/${encodeURIComponent(folderPath)}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error('Failed to delete folder');
+    }
+    console.log(`Folder "${folderPath}" deleted successfully.`);
+    await renderDirectoryTree();
+  } catch (error) {
+    console.error('Error deleting folder:', error);
+    alert('An error occurred while deleting the folder.');
   }
 }
 
@@ -194,43 +226,6 @@ export function promptCreateFolder() {
   }
 }
 
-// Delete a folder and its contents recursively
-export async function deleteFolder(directoryHandle, parentDirectoryHandle) {
-  try {
-    const hasPermission = await verifyPermission(directoryHandle, 'readwrite');
-    if (!hasPermission) {
-      console.error('No permission to delete this folder.');
-      alert('Permission denied to delete this folder.');
-      return;
-    }
-
-    // Recursively delete contents
-    await recursivelyDeleteDirectory(directoryHandle);
-
-    // Remove the directory entry from its parent
-    if (parentDirectoryHandle) {
-      await parentDirectoryHandle.removeEntry(directoryHandle.name, { recursive: true });
-      console.log(`Folder "${directoryHandle.name}" deleted successfully.`);
-    } else {
-      console.error('Cannot find parent directory handle.');
-    }
-  } catch (error) {
-    console.error('Error deleting folder:', error);
-  }
-}
-
-// Helper function to recursively delete directory contents
-async function recursivelyDeleteDirectory(directoryHandle) {
-  for await (const entry of directoryHandle.values()) {
-    if (entry.kind === 'file') {
-      await directoryHandle.removeEntry(entry.name);
-    } else if (entry.kind === 'directory') {
-      await recursivelyDeleteDirectory(entry);
-      await directoryHandle.removeEntry(entry.name, { recursive: true });
-    }
-  }
-}
-
 // Prompt to create a new note
 export function promptCreateNote() {
   const noteName = prompt('Enter note name:');
@@ -239,13 +234,10 @@ export function promptCreateNote() {
   }
 }
 
-// Show the open directory prompt
+// Show the open directory prompt (modify as needed)
 export function showOpenDirectoryPrompt() {
   const promptContainer = document.getElementById('prompt-container');
   if (promptContainer) {
     promptContainer.style.display = 'flex';
   }
 }
-
-// Import utility functions
-import { hideElement, showElement } from './utils.js';

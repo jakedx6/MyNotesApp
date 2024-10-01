@@ -15,7 +15,6 @@ async function initializeOllamaUrl() {
 }
 
 initializeOllamaUrl();
-
 export async function handleOllamaAction(action, editor) {
   const doc = editor.codemirror.getDoc();
   const selectedText = doc.getSelection();
