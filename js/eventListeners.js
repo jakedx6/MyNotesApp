@@ -1,6 +1,6 @@
 // eventListeners.js
 
-import { promptCreateNote, promptCreateFolder, changeMainDirectory, requestDirectoryAccess } from './fileSystem.js';
+import { promptCreateNote, promptCreateFolder } from './fileSystem.js';
 import { saveSetting } from './db.js';
 import { openSettingsModal, closeSettingsModal } from './domElements.js';
 
@@ -18,19 +18,9 @@ export function initializeEventListeners() {
     promptCreateFolder();
   });
 
-  document.getElementById('change-directory-btn').addEventListener('click', async (event) => {
-    event.stopPropagation();
-    await changeMainDirectory();
-  });
-
   // Toggle dark mode
   document.getElementById('dark-mode-toggle').addEventListener('click', () => {
     toggleDarkMode();
-  });
-
-  // Event listener for the "Open Directory" button
-  document.getElementById('open-directory-btn').addEventListener('click', async () => {
-    await requestDirectoryAccess();
   });
 
   document.getElementById('open-settings-btn').addEventListener('click', openSettingsModal);
@@ -56,11 +46,11 @@ export function initializeEventListeners() {
   });
 }
 
+// Update the toggleDarkMode function
 async function toggleDarkMode() {
   document.documentElement.classList.toggle('dark');
   // Determine if dark mode is currently enabled
   const isDarkMode = document.documentElement.classList.contains('dark');
-  // Save the setting to IndexedDB
+  // Save the setting to the server or local storage
   await saveSetting('darkMode', isDarkMode);
 }
-

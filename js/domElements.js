@@ -1,26 +1,59 @@
 // domElements.js
 
 import {
-  updateCurrentDirectoryHandle,
   deleteFile,
   deleteFolder,
   openFile,
-  rootDirectoryHandle,
+  createNote,
+  createFolder,
+  renderDirectoryTree,
+  setCurrentFolderPath,
+  getCurrentFolderPath
 } from './fileSystem.js';
 import {
   loadAndRenderDirectoryContents,
-  renderDirectoryTree,
 } from './directoryTree.js';
 import { getSetting } from './db.js';
+
+/*** Initialize Event Listeners for Creating Notes and Folders ***/
+document.addEventListener('DOMContentLoaded', () => {
+  const newNoteButton = document.getElementById('new-note-button');
+  const newFolderButton = document.getElementById('new-folder-button');
+
+  if (newNoteButton) {
+    newNoteButton.addEventListener('click', promptCreateNote);
+  }
+
+  if (newFolderButton) {
+    newFolderButton.addEventListener('click', promptCreateFolder);
+  }
+});
+
+/*** Prompt Functions ***/
+// Prompt to create a new note
+export function promptCreateNote() {
+  const noteName = prompt('Enter note name:');
+  if (noteName && noteName.trim() !== '') {
+    createNote(noteName.trim());
+  } else if (noteName !== null) { // If user didn't cancel
+    alert('Note name cannot be empty.');
+  }
+}
+
+// Prompt to create a new folder
+export function promptCreateFolder() {
+  const folderName = prompt('Enter folder name:');
+  if (folderName && folderName.trim() !== '') {
+    createFolder(folderName.trim());
+  } else if (folderName !== null) { // If user didn't cancel
+    alert('Folder name cannot be empty.');
+  }
+}
 
 /*** DOM Element Creation Functions ***/
 
 // Create directory element recursively
-export async function createDirectoryElement(
-  directoryHandle,
-  parentDirectoryHandle,
-  level
-) {
+export async function createDirectoryElement(entry, level, pathsToOpen = []) {
   const item = document.createElement('div');
   item.classList.add('flex', 'flex-col', 'p-0');
 
@@ -37,14 +70,14 @@ export async function createDirectoryElement(
   const folderInfo = document.createElement('div');
   folderInfo.classList.add('flex', 'items-center', 'cursor-pointer');
 
-  // Folder icon (closed)
+  // Folder icon
   const folderIcon = document.createElement('span');
   folderIcon.innerHTML = `
-    <span class="material-symbols-outlined pr-2">folder</span>
+    <span class="material-symbols-outlined">folder</span>
   `;
 
   const folderName = document.createElement('span');
-  folderName.textContent = directoryHandle.name;
+  folderName.textContent = entry.name;
   folderName.classList.add('font-bold');
 
   folderInfo.appendChild(folderIcon);
@@ -58,18 +91,17 @@ export async function createDirectoryElement(
   deleteButton.innerHTML = `
     <span class="material-symbols-outlined text-red-500">delete</span>
   `;
-  deleteButton.classList.add('focus:outline-none');
 
-  // **Add event listener to the delete button**
+  // Add event listener to the delete button
   deleteButton.addEventListener('click', async (event) => {
     event.stopPropagation();
     const confirmDelete = confirm(
-      `Are you sure you want to delete the folder "${directoryHandle.name}" and all its contents? This action cannot be undone.`
+      `Are you sure you want to delete the folder "${entry.name}" and all its contents? This action cannot be undone.`
     );
     if (confirmDelete) {
-      await deleteFolder(directoryHandle, parentDirectoryHandle);
-      // Refresh the directory tree from the root
-      await renderDirectoryTree(rootDirectoryHandle);
+      await deleteFolder(entry.path);
+      setCurrentFolderPath('');
+      await renderDirectoryTree();
     }
   });
 
@@ -84,29 +116,41 @@ export async function createDirectoryElement(
 
   folderInfo.addEventListener('click', async (event) => {
     event.stopPropagation();
-    updateCurrentDirectoryHandle(directoryHandle);
     if (childrenContainer.style.display === 'none') {
       childrenContainer.style.display = 'flex';
       // Change folder icon to open
       folderIcon.innerHTML = `
-        <span class="material-symbols-outlined pr-2">folder_open</span>
+        <span class="material-symbols-outlined">folder_open</span>
       `;
       if (!childrenContainer.hasChildNodes()) {
         // Load and render child entries
-        await loadAndRenderDirectoryContents(
-          directoryHandle,
-          childrenContainer,
-          level + 1
-        );
+        await loadAndRenderDirectoryContents(entry.path, childrenContainer, level + 1, pathsToOpen);
       }
+      // Set currentFolderPath to the opened folder
+      setCurrentFolderPath(entry.path);
     } else {
       childrenContainer.style.display = 'none';
       // Change folder icon to closed
       folderIcon.innerHTML = `
-        <span class="material-symbols-outlined pr-2">folder</span>
+        <span class="material-symbols-outlined">folder</span>
       `;
+      // If the currentFolderPath is the folder being closed, reset it to root
+      if (getCurrentFolderPath() === entry.path) {
+        setCurrentFolderPath('');
+      }
     }
   });
+
+  // Automatically open the folder if it's in pathsToOpen
+  if (pathsToOpen.includes(entry.path)) {
+    childrenContainer.style.display = 'flex';
+    // Change folder icon to open
+    folderIcon.innerHTML = `
+      <span class="material-symbols-outlined">folder_open</span>
+    `;
+    // Load and render child entries
+    await loadAndRenderDirectoryContents(entry.path, childrenContainer, level + 1, pathsToOpen);
+  }
 
   item.appendChild(childrenContainer);
 
@@ -114,11 +158,7 @@ export async function createDirectoryElement(
 }
 
 // Create file element
-export async function createFileElement(
-  fileHandle,
-  parentDirectoryHandle,
-  level
-) {
+export async function createFileElement(entry, level) {
   const item = document.createElement('div');
   item.classList.add(
     'flex',
@@ -140,7 +180,7 @@ export async function createFileElement(
   `;
 
   const fileName = document.createElement('span');
-  fileName.textContent = fileHandle.name;
+  fileName.textContent = entry.name;
   fileName.classList.add('text-blue-600', 'dark:text-blue-400', 'file-name');
 
   fileInfo.appendChild(fileIcon);
@@ -155,28 +195,16 @@ export async function createFileElement(
   `;
   deleteButton.classList.add('focus:outline-none');
 
-  deleteButton.addEventListener('click', async (event) => {
-    event.stopPropagation();
-    const confirmDelete = confirm(
-      `Are you sure you want to delete "${fileHandle.name}"?`
-    );
-    if (confirmDelete) {
-      await deleteFile(fileHandle, parentDirectoryHandle);
-      await renderDirectoryTree(rootDirectoryHandle);
-    }
-  });
-
   item.appendChild(deleteButton);
 
   fileInfo.addEventListener('click', async () => {
-    await openFile(fileHandle, parentDirectoryHandle);
+    await openFile(entry.path);
   });
 
   return item;
 }
 
 /*** Show AI Response Modal ***/
-
 export function showAIResponseModal(aiResponse, doc) {
   const modal = document.getElementById('ai-response-modal');
   const closeModalButton = document.getElementById('close-modal');
