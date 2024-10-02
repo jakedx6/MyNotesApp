@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Markdown Notes App</title>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@300" rel="stylesheet" />
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Enable dark mode in Tailwind config -->
@@ -49,8 +49,8 @@
       <div class="flex items-center space-x-2">
         <button id="new-note-btn" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">New Note</button>
         <button id="new-folder-btn" class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600">New Folder</button>
-        <button id="export-button" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600">Export Notes</button>
-        <button id="import-button"  class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600">Import Notes</button>
+        <button id="export-button" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600">Export</button>
+        <button id="import-button"  class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600">Import</button>
         <button id="open-settings-btn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600">Settings</button>
       </div>
     </header>
@@ -83,7 +83,7 @@
       </div>
       <!-- Modal Content -->
       <div class="px-4 py-6">
-        <textarea id="ai-response-text" class="w-full h-96" readonly></textarea>
+        <textarea id="ai-response-text" class="bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 w-full h-96 p-3" readonly></textarea>
         <div class="flex space-x-2 mt-4">
           <button id="copy-button" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Copy</button>
           <button id="append-button" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Append</button>

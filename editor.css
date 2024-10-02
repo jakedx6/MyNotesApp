@@ -37,13 +37,19 @@ html.dark .editor-statusbar {
 }
 
 
-html.dark .editor-toolbar button {
-  color: var(--color-gray-400);
+html .editor-toolbar button.ai-action .fa{
+  color: var(--color-orange-600);
   /* Lighter color for icons */
 }
 
-html.dark .editor-toolbar button:hover {
+html.dark .editor-toolbar button.ai-action:hover {
   background-color: var(--color-gray-600);
+  border-color: var(--color-orange-600);
+}
+
+html .editor-toolbar button.ai-action:hover {
+  background-color: var(--color-gray-100);
+  border-color: var(--color-orange-600);
 }
 
 html.dark .editor-toolbar button i {
