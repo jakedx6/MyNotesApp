@@ -3,6 +3,8 @@
 
 A feature-rich Markdown Notes editor with directory navigation, dark mode support, and integrated AI functionalities powered by the [Ollama](https://github.com/jmorganca/ollama) API. Enhance your writing experience with AI-powered text expansion, improvement, and summarization directly within the editor.
 
+[Video Demo](https://youtu.be/U6zLPygKQ3U?si=dwK_Tny0E3p0M9ES)
+
 ## **Table of Contents**
 
 -   [Features](#features)
@@ -18,6 +20,7 @@ A feature-rich Markdown Notes editor with directory navigation, dark mode suppor
 ## **Features**
 
 -   **Markdown Editing:** Write and edit Markdown files with syntax highlighting and live preview.
+-   **No Cloud:** Everything Local!
 -   **Directory Navigation:** Browse and manage files and folders through an interactive directory tree.
 -   **File Operations:** Create, open, edit, save, and delete Markdown files.
 -   **Dark Mode Support:** Toggle between light and dark themes for comfortable editing.
@@ -26,7 +29,7 @@ A feature-rich Markdown Notes editor with directory navigation, dark mode suppor
     -   **Improve:** Enhance the quality of your writing.
     -   **Summarize:** Generate concise summaries of your content.
 -   **AI Response Preview:** Preview AI-generated content before appending or replacing text.
--   **Import/Export:** Import and Export .zip files continaing folders and Markdown files.
+-   **Import/Export:** Import and Export .zip files containing folders and Markdown files.
 
 ----------
 
