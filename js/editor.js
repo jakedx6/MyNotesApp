@@ -36,24 +36,24 @@ export function initializeEditor(content = '') {
                     action: async function customExpand(editor) {
                         await handleOllamaAction('expand', editor);
                     },
-                    className: 'fa fa-expand',
-                    title: 'Expand Selection',
+                    className: 'fa fa-expand ai-action',
+                    title: 'AI Expand Selection',
                 },
                 {
                     name: 'improve',
                     action: async function customImprove(editor) {
                         await handleOllamaAction('improve', editor);
                     },
-                    className: 'fa fa-magic',
-                    title: 'Improve Selection',
+                    className: 'fa fa-magic ai-action',
+                    title: 'AI Improve Selection',
                 },
                 {
                     name: 'summarize',
                     action: async function customSummarize(editor) {
                         await handleOllamaAction('summarize', editor);
                     },
-                    className: 'fa fa-align-left',
-                    title: 'Summarize Selection',
+                    className: 'fa fa-align-left ai-action',
+                    title: 'AI Summarize Selection',
                 },
             ],
             autosave: {
