@@ -3,6 +3,9 @@
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
+const archiver = require('archiver');
+const multer = require('multer');
+const unzipper = require('unzipper');
 const path = require('path');
 const fs = require('fs');
 
@@ -18,6 +21,9 @@ app.use(express.text()); // For parsing text/plain bodies
 
 // Initialize SQLite database (using a file-based database)
 const db = new sqlite3.Database('./data.db');
+
+// Configure Multer for file uploads
+const upload = multer({ dest: 'temp_uploads/' }); // Temporary upload destination
 
 // Create tables
 db.serialize(() => {
@@ -166,6 +172,102 @@ app.get('/api/directories/:folderPath(*)?', (req, res) => {
       });
     }
   });
+});
+
+// ==================== IMPORT/EXPORT ENDPOINTS ====================
+
+// Import endpoint
+app.post('/api/import', upload.single('zipFile'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).send('No file uploaded.');
+    }
+
+    const zipFilePath = req.file.path;
+
+    // Define the directory where markdown files are stored
+    const markdownDir = path.join(__dirname, 'uploads');
+
+    // Create a stream to read the ZIP file
+    fs.createReadStream(zipFilePath)
+      .pipe(unzipper.Parse())
+      .on('entry', async (entry) => {
+        const fileName = entry.path;
+        const type = entry.type; // 'Directory' or 'File'
+
+        // Ensure the fileName is safe to use
+        const sanitizedPath = path.normalize(fileName).replace(/^(\.\.(\/|\\|$))+/, '');
+
+        // Construct the full path where the file should be extracted
+        const fullPath = path.join(markdownDir, sanitizedPath);
+
+        if (type === 'File' && fileName.endsWith('.md')) {
+          // Create directories if they don't exist
+          fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+
+          // Write the markdown file
+          entry.pipe(fs.createWriteStream(fullPath));
+        } else {
+          // Discard other files and directories
+          entry.autodrain();
+        }
+      })
+      .on('close', () => {
+        // Clean up the uploaded zip file
+        fs.unlink(zipFilePath, (err) => {
+          if (err) console.error('Error deleting uploaded zip file:', err);
+        });
+
+        res.json({ success: true, message: 'Import completed successfully.' });
+      })
+      .on('error', (err) => {
+        console.error('Error during import:', err);
+        res.status(500).send('An error occurred during import.');
+      });
+  } catch (error) {
+    console.error('Error during import:', error);
+    res.status(500).send('An error occurred during import.');
+  }
+});
+
+
+// Export endpoint
+app.get('/api/export', async (req, res) => {
+  try {
+    // Set the headers
+    res.set({
+      'Content-Type': 'application/zip',
+      'Content-Disposition': 'attachment; filename="markdown_backup.zip"',
+    });
+
+    const archive = archiver('zip', { zlib: { level: 9 } });
+
+    // Handle errors
+    archive.on('error', (err) => {
+      throw err;
+    });
+
+    // Pipe the archive data to the response
+    archive.pipe(res);
+
+    // Define the directory containing markdown files
+    const markdownDir = path.join(__dirname, 'uploads');
+
+    // Check if the directory exists
+    if (fs.existsSync(markdownDir)) {
+      // Add all markdown files to the archive
+      archive.glob('**/*.md', { cwd: markdownDir, dot: true });
+    } else {
+      // If directory doesn't exist, send an empty archive
+      console.warn('Markdown directory does not exist.');
+    }
+
+    // Finalize the archive (this triggers the 'end' event)
+    await archive.finalize();
+  } catch (error) {
+    console.error('Error during export:', error);
+    res.status(500).send('An error occurred during the export.');
+  }
 });
 
 // Create a folder

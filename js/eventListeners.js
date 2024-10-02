@@ -2,7 +2,7 @@
 
 import { promptCreateNote, promptCreateFolder } from './fileSystem.js';
 import { saveSetting } from './db.js';
-import { openSettingsModal, closeSettingsModal } from './domElements.js';
+import { openSettingsModal, closeSettingsModal, exportNotes, showImportDialog} from './domElements.js';
 
 /*** Event Listeners and UI Actions ***/
 
@@ -17,6 +17,10 @@ export function initializeEventListeners() {
     event.stopPropagation();
     promptCreateFolder();
   });
+
+
+  document.getElementById('export-button').addEventListener('click', exportNotes);
+  document.getElementById('import-button').addEventListener('click', showImportDialog);
 
   // Toggle dark mode
   document.getElementById('dark-mode-toggle').addEventListener('click', () => {

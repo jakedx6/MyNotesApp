@@ -26,6 +26,7 @@ A feature-rich Markdown Notes editor with directory navigation, dark mode suppor
     -   **Improve:** Enhance the quality of your writing.
     -   **Summarize:** Generate concise summaries of your content.
 -   **AI Response Preview:** Preview AI-generated content before appending or replacing text.
+-   **Import/Export:** Import and Export .zip files continaing folders and Markdown files.
 
 ----------
 

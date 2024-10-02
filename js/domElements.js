@@ -14,6 +14,7 @@ import {
   loadAndRenderDirectoryContents,
 } from './directoryTree.js';
 import { getSetting } from './db.js';
+import { API_BASE_URL } from './config.js';
 
 /*** Initialize Event Listeners for Creating Notes and Folders ***/
 document.addEventListener('DOMContentLoaded', () => {
@@ -73,7 +74,7 @@ export async function createDirectoryElement(entry, level, pathsToOpen = []) {
   // Folder icon
   const folderIcon = document.createElement('span');
   folderIcon.innerHTML = `
-    <span class="material-symbols-outlined">folder</span>
+    <span class="material-symbols-outlined pr-2">folder</span>
   `;
 
   const folderName = document.createElement('span');
@@ -120,7 +121,7 @@ export async function createDirectoryElement(entry, level, pathsToOpen = []) {
       childrenContainer.style.display = 'flex';
       // Change folder icon to open
       folderIcon.innerHTML = `
-        <span class="material-symbols-outlined">folder_open</span>
+        <span class="material-symbols-outlined pr-2">folder_open</span>
       `;
       if (!childrenContainer.hasChildNodes()) {
         // Load and render child entries
@@ -132,7 +133,7 @@ export async function createDirectoryElement(entry, level, pathsToOpen = []) {
       childrenContainer.style.display = 'none';
       // Change folder icon to closed
       folderIcon.innerHTML = `
-        <span class="material-symbols-outlined">folder</span>
+        <span class="material-symbols-outlined pr-2">folder</span>
       `;
       // If the currentFolderPath is the folder being closed, reset it to root
       if (getCurrentFolderPath() === entry.path) {
@@ -146,7 +147,7 @@ export async function createDirectoryElement(entry, level, pathsToOpen = []) {
     childrenContainer.style.display = 'flex';
     // Change folder icon to open
     folderIcon.innerHTML = `
-      <span class="material-symbols-outlined">folder_open</span>
+      <span class="material-symbols-outlined pr-2">folder_open</span>
     `;
     // Load and render child entries
     await loadAndRenderDirectoryContents(entry.path, childrenContainer, level + 1, pathsToOpen);
@@ -176,7 +177,7 @@ export async function createFileElement(entry, level) {
   // File icon
   const fileIcon = document.createElement('span');
   fileIcon.innerHTML = `
-    <span class="material-symbols-outlined">description</span>
+    <span class="material-symbols-outlined pr-2">description</span>
   `;
 
   const fileName = document.createElement('span');
@@ -202,6 +203,98 @@ export async function createFileElement(entry, level) {
   });
 
   return item;
+}
+
+export function showImportDialog() {
+  // Create a file input element
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = '.zip';
+
+  // Listen for file selection
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length > 0) {
+      const file = fileInput.files[0];
+      uploadZipFile(file);
+    }
+  });
+
+  // Trigger the file input dialog
+  fileInput.click();
+}
+
+async function uploadZipFile(file) {
+  try {
+    // Optionally, show a loading indicator here
+
+    const formData = new FormData();
+    formData.append('zipFile', file);
+
+    const response = await fetch(`${API_BASE_URL}/api/import`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to import notes.');
+    }
+
+    const result = await response.json();
+    alert(`Import successful: ${result.message}`);
+
+    // Refresh the directory tree to show the imported notes
+    await renderDirectoryTree();
+
+    // Optionally, hide the loading indicator here
+  } catch (error) {
+    console.error('Error importing notes:', error);
+    alert('An error occurred while importing notes.');
+  }
+}
+
+export async function exportNotes() {
+  try {
+    // Optionally, show a loading indicator here
+
+    const response = await fetch(`${API_BASE_URL}/api/export`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to export notes.');
+    }
+
+    const blob = await response.blob();
+
+    // Create a link element and simulate a click to download the file
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+
+    // Use the filename from the 'Content-Disposition' header if available
+    const disposition = response.headers.get('Content-Disposition');
+    let filename = 'markdown_backup.zip';
+    if (disposition && disposition.indexOf('attachment') !== -1) {
+      const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+      const matches = filenameRegex.exec(disposition);
+      if (matches != null && matches[1]) {
+        filename = matches[1].replace(/['"]/g, '');
+      }
+    }
+
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+
+    // Clean up
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+
+    // Optionally, hide the loading indicator here
+  } catch (error) {
+    console.error('Error exporting notes:', error);
+    alert('An error occurred while exporting notes.');
+  }
 }
 
 /*** Show AI Response Modal ***/
