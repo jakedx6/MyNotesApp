@@ -194,7 +194,18 @@ export async function createFileElement(entry, level) {
   deleteButton.innerHTML = `
     <span class="material-symbols-outlined text-red-500">delete</span>
   `;
-  deleteButton.classList.add('focus:outline-none');
+
+  // Add event listener to the delete button
+  deleteButton.addEventListener('click', async (event) => {
+    event.stopPropagation();
+    const confirmDelete = confirm(
+      `Are you sure you want to delete the File "${entry.name}"? This action cannot be undone.`
+    );
+    if (confirmDelete) {
+      await deleteFile(entry.path);
+      await renderDirectoryTree();
+    }
+  });
 
   item.appendChild(deleteButton);
 
